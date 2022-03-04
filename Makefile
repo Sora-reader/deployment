@@ -1,0 +1,99 @@
+# TODO: certbot autorenew cron
+# TODO: may be move certificate handling to docker
+
+##########
+# Config #
+##########
+
+CYAN ?= \033[0;36m
+RED ?= \033[0;31m
+COFF ?= \033[0m
+
+COMPOSE = docker-compose -f docker-compose.yml
+USER = docker_user
+BACKEND_PATH = ../backend
+FRONTEND_PATH = ../frontend
+
+ARGS = $(filter-out $@,$(MAKECMDGOALS))
+
+# Include dotenv's variables is exists
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
+
+.PHONY: help # TODO
+.ONESHELL:
+.DEFAULT: help
+
+# TODO: fix
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-30s$(COFF) %s\n", $$1, $$2}'
+
+%: # stub so that chained targets won't fire. Allows to pass positional arguments to targets. Also has a stub for error if target not found
+	@:
+		$(if ${ARGS},,$(error No rule to make target '$@'))
+
+###############
+# Depedencies #
+###############
+
+install-prerequisites: ## Install prerequisites
+	sudo apt update
+	sudo apt install git curl
+
+install-docker: install-prerequisites ## Install docker
+	sudo apt-get install -y \
+		apt-transport-https \
+		ca-certificates \
+		software-properties-common
+	curl -fsSL 'https://download.docker.com/linux/ubuntu/gpg' | sudo apt-key add -
+	sudo apt-key fingerprint 0EBFCD88
+	sudo add-apt-repository \
+		"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(shell lsb_release -cs) stable"
+	sudo apt-get update
+	sudo apt-get install -y docker-ce
+	sudo docker run hello-world
+	# Linux post-install
+	sudo groupadd docker
+	sudo usermod -aG docker $USER
+	sudo systemctl enable docker
+	sudo systemctl start docker
+
+install-docker-compose: install-docker ## Install docker-compose
+	sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(shell uname -s)-$(shell uname -m)" -o /usr/local/bin/docker-compose
+	sudo chmod +x /usr/local/bin/docker-compose
+	sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+install-certbot:
+	sudo pip install certbot certbot-nginx
+
+##############
+# Management #
+##############
+
+check-dotenv:
+	@$(eval DOTENVS := $(shell test -f ./.env && echo 'nonzero string'))
+	$(if $(DOTENVS),,$(error No .env files found, maybe run "make dotenv"?))
+
+dotenv: ## Copy all repo's dotenvs
+	cp -i env.example .env
+
+dotenv-all:
+	cp -i ${BACKEND_PATH}/.env.example backend.env
+	cp -i ${FRONTEND_PATH}/.env.example frontend.env
+
+generate-certificates: check-dotenv
+	sudo certbot --nginx -d ${BACKEND_DOMAIN}
+	sudo certbot --nginx -d ${FRONTEND_DOMAIN}
+
+create-user: check-dotenv ## Create user for docker and give him permissions
+	sudo useradd --create-home -p $(shell perl -e 'print crypt($$ARGV[0], "password")' ${DOCKER_USER_PASSWORD})  ${USER}
+	sudo usermod -aG docker ${USER}
+
+clone: ## Clone all repos
+	git -C $(shell realpath ${BACKEND_PATH} | xargs dirname) clone http://github.com/sora-reader/backend.git
+	git -C $(shell realpath ${FRONTEND_PATH} | xargs dirname) clone http://github.com/sora-reader/frontend.git
+
+deploy: check-dotenv ## Deploy specified service
+	$(COMPOSE) up --build ${ARGS}
