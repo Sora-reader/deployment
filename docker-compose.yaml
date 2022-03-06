@@ -20,12 +20,13 @@ services:
   backend:
     build:
       dockerfile: Dockerfile
-      context: ../backend
+      context: "$BACKEND_PATH"
     image: sora_backend
     restart: unless-stopped
     volumes:
       - backend_static:/app/staticfiles:rw
     environment:
+      - DEBUG=0
       - DATABASE_HOST=postgres
       - DATABASE_USER=$POSTGRES_USER
       - DATABASE_PASSWORD=$POSTGRES_PASSWORD
@@ -40,9 +41,17 @@ services:
   frontend:
     build:
       dockerfile: Dockerfile
-      context: ..frontend/
+      context: "$FRONTEND_PATH"
+      args:
+        - SENTRY_DSN=${SENTRY_DSN}
+        - SENTRY_URL=${SENTRY_URL}
+        - SENTRY_ORG=${SENTRY_ORG}
+        - SENTRY_PROJECT=${SENTRY_PROJECT}
+        - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
     image: sora_frontend
     restart: unless-stopped
+    environment:
+      - RESIZE_URL=$LINK_PREVIEW
 
   postgres:
     image: postgres:12

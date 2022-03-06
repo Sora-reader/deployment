@@ -5,22 +5,20 @@
 # Config #
 ##########
 
+# Include dotenv's variables is exists
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
+
 CYAN ?= \033[0;36m
 RED ?= \033[0;31m
 COFF ?= \033[0m
 
 COMPOSE = docker-compose -f docker-compose.yml
 USER = docker_user
-BACKEND_PATH = ../backend
-FRONTEND_PATH = ../frontend
 
 ARGS = $(filter-out $@,$(MAKECMDGOALS))
-
-# Include dotenv's variables is exists
-ifneq (,$(wildcard ./.env))
-    include .env
-    export
-endif
 
 .PHONY: help # TODO
 .ONESHELL:
@@ -77,18 +75,18 @@ check-dotenv:
 	$(if $(DOTENVS),,$(error No .env files found, maybe run "make dotenv"?))
 
 dotenv: ## Copy all repo's dotenvs
-	cp -i env.example .env
+	cp -i .env.example .env
 
 dotenv-all:
-	cp -i ${BACKEND_PATH}/.env.example backend.env
-	cp -i ${FRONTEND_PATH}/.env.example frontend.env
+	cp -i ${BACKEND_PATH}/.envs.example/deployment.env.example backend.env
+	cp -i ${FRONTEND_PATH}/.envs.example/deployment.env.example frontend.env
 
 generate-certificates: check-dotenv
 	sudo certbot --nginx -d ${BACKEND_DOMAIN}
 	sudo certbot --nginx -d ${FRONTEND_DOMAIN}
 
 create-user: check-dotenv ## Create user for docker and give him permissions
-	sudo useradd --create-home -p $(shell perl -e 'print crypt($$ARGV[0], "password")' ${DOCKER_USER_PASSWORD})  ${USER}
+	sudo useradd -s /bin/bash --create-home -p $(shell perl -e 'print crypt($$ARGV[0], "password")' ${DOCKER_USER_PASSWORD})  ${USER}
 	sudo usermod -aG docker ${USER}
 
 clone: ## Clone all repos
