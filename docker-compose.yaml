@@ -49,6 +49,7 @@ services:
       dockerfile: Dockerfile
       context: "$FRONTEND_PATH"
       args:
+        - SENTRY_LOG_LEVEL=info
         - SENTRY_DSN=$FRONTEND_SENTRY_DSN
         - SENTRY_URL=$FRONTEND_SENTRY_URL
         - SENTRY_ORG=$FRONTEND_SENTRY_ORG
