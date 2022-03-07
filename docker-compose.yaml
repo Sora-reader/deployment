@@ -34,6 +34,8 @@ services:
       - REDIS_URL=redis://redis:6379
       - ELASTICSEARCH_HOST=elasticsearch:9200
       - ALLOWED_HOSTS=localhost $BACKEND_DOMAIN
+    env_file:
+      - backend.env
     depends_on:
       - postgres
       - redis
@@ -44,11 +46,11 @@ services:
       dockerfile: Dockerfile
       context: "$FRONTEND_PATH"
       args:
-        - SENTRY_DSN=$SENTRY_DSN
-        - SENTRY_URL=$SENTRY_URL
-        - SENTRY_ORG=$SENTRY_ORG
-        - SENTRY_PROJECT=$SENTRY_PROJECT
-        - SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+        - SENTRY_DSN=$FRONTEND_SENTRY_DSN
+        - SENTRY_URL=$FRONTEND_SENTRY_URL
+        - SENTRY_ORG=$FRONTEND_SENTRY_ORG
+        - SENTRY_PROJECT=$FRONTEND_SENTRY_PROJECT
+        - SENTRY_AUTH_TOKEN=$FRONTEND_SENTRY_AUTH_TOKEN
     image: sora_frontend
     restart: unless-stopped
     environment:

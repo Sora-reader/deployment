@@ -71,9 +71,8 @@ check-dotenv:
 dotenv: ## Copy all repo's dotenvs
 	cp -i .env.example .env
 
-dotenv-all:
+dotenv-other:
 	cp -i ${BACKEND_PATH}/.envs.example/deployment.env.example backend.env
-	cp -i ${FRONTEND_PATH}/.envs.example/deployment.env.example frontend.env
 
 create-user: check-dotenv ## Create user for docker and give him permissions
 	sudo useradd -s /bin/bash --create-home -p $(shell perl -e 'print crypt($$ARGV[0], "password")' ${DOCKER_USER_PASSWORD})  ${USER}
