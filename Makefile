@@ -1,6 +1,3 @@
-# TODO: certbot autorenew cron
-# TODO: may be move certificate handling to docker
-
 ##########
 # Config #
 ##########
@@ -15,7 +12,7 @@ CYAN ?= \033[0;36m
 RED ?= \033[0;31m
 COFF ?= \033[0m
 
-COMPOSE = docker-compose -f docker-compose.yml
+COMPOSE = docker-compose
 USER = docker_user
 
 ARGS = $(filter-out $@,$(MAKECMDGOALS))
@@ -63,9 +60,6 @@ install-docker-compose: install-docker ## Install docker-compose
 	sudo chmod +x /usr/local/bin/docker-compose
 	sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
-install-certbot:
-	sudo pip install certbot certbot-nginx
-
 ##############
 # Management #
 ##############
@@ -81,10 +75,6 @@ dotenv-all:
 	cp -i ${BACKEND_PATH}/.envs.example/deployment.env.example backend.env
 	cp -i ${FRONTEND_PATH}/.envs.example/deployment.env.example frontend.env
 
-generate-certificates: check-dotenv
-	sudo certbot --nginx -d ${BACKEND_DOMAIN}
-	sudo certbot --nginx -d ${FRONTEND_DOMAIN}
-
 create-user: check-dotenv ## Create user for docker and give him permissions
 	sudo useradd -s /bin/bash --create-home -p $(shell perl -e 'print crypt($$ARGV[0], "password")' ${DOCKER_USER_PASSWORD})  ${USER}
 	sudo usermod -aG docker ${USER}
@@ -95,3 +85,4 @@ clone: ## Clone all repos
 
 deploy: check-dotenv ## Deploy specified service
 	$(COMPOSE) up --build ${ARGS}
+
