@@ -77,11 +77,14 @@ dotenv-other:
 create-user: check-dotenv ## Create user for docker and give him permissions
 	sudo useradd -s /bin/bash --create-home -p $(shell perl -e 'print crypt($$ARGV[0], "password")' ${DOCKER_USER_PASSWORD})  ${USER}
 	sudo usermod -aG docker ${USER}
+	@# Should be tested
+	sudo chgrp docker $(shell pwd)
+	sudo chmod g+x -R $(shell pwd)
 
 clone: ## Clone all repos
 	git -C $(shell realpath ${BACKEND_PATH} | xargs dirname) clone http://github.com/sora-reader/backend.git
 	git -C $(shell realpath ${FRONTEND_PATH} | xargs dirname) clone http://github.com/sora-reader/frontend.git
 
 deploy: check-dotenv ## Deploy specified service
-	$(COMPOSE) up --build ${ARGS}
+	$(COMPOSE) up --build -d ${ARGS}
 
