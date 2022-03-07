@@ -25,7 +25,10 @@ services:
     restart: unless-stopped
     volumes:
       - backend_static:/app/staticfiles:rw
+    expose:
+      - 8000
     environment:
+      - PORT=8000
       - DEBUG=0
       - DATABASE_HOST=postgres
       - DATABASE_USER=$POSTGRES_USER
@@ -53,7 +56,10 @@ services:
         - SENTRY_AUTH_TOKEN=$FRONTEND_SENTRY_AUTH_TOKEN
     image: sora_frontend
     restart: unless-stopped
+    expose:
+      - 3000
     environment:
+      - PORT=3000
       - RESIZE_URL=$LINK_PREVIEW
 
   postgres:
