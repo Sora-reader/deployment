@@ -77,7 +77,7 @@ dotenv-other:
 create-user: check-dotenv ## Create user for docker and give him permissions
 	sudo useradd -s /bin/bash --create-home -p $(shell perl -e 'print crypt($$ARGV[0], "password")' ${DOCKER_USER_PASSWORD})  ${USER}
 	sudo usermod -aG docker ${USER}
-	@# Should be tested
+	@# TODO: test
 	sudo chgrp docker $(shell pwd)
 	sudo chmod g+x -R $(shell pwd)
 
