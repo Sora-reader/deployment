@@ -28,6 +28,7 @@ services:
     expose:
       - 8000
     environment:
+      - HOST=0.0.0.0
       - PORT=8000
       - DEBUG=0
       - DATABASE_HOST=postgres
@@ -36,7 +37,7 @@ services:
       - DATABASE_NAME=$POSTGRES_DB
       - REDIS_URL=redis://redis:6379
       - ELASTICSEARCH_HOST=elasticsearch:9200
-      - ALLOWED_HOSTS=localhost $BACKEND_DOMAIN
+      - ALLOWED_HOSTS=localhost backend $BACKEND_DOMAIN
     env_file:
       - backend.env
     depends_on:
@@ -60,8 +61,11 @@ services:
     expose:
       - 3000
     environment:
+      - HOST=0.0.0.0
       - PORT=3000
-      - RESIZE_URL=$LINK_PREVIEW
+      - NEXT_PUBLIC_BACKEND_URL=https://$BACKEND_DOMAIN
+      - NEXT_PUBLIC_BACKEND_PORT=443
+      - NEXT_PUBLIC_RESIZE_URL=$LINK_PREVIEW
 
   postgres:
     image: postgres:12

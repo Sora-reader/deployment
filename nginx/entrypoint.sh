@@ -8,4 +8,4 @@ generate_certificate () {
 [ -d '/etc/letsencrypt/live/backend.sora-reader.app' ] || generate_certificate backend.sora-reader.app 1337kwiz@gmail.com
 [ -d '/etc/letsencrypt/live/sora-reader.app' ] || generate_certificate sora-reader.app 1337kwiz@gmail.com
 
-nginx -g 'daemon off;'
+./docker-entrypoint.sh nginx -g 'daemon off;'
