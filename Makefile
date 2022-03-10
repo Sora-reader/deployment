@@ -25,9 +25,8 @@ ARGS = $(filter-out $@,$(MAKECMDGOALS))
 .ONESHELL:
 .DEFAULT: help
 
-# TODO: fix
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-30s$(COFF) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(word 1,$(MAKEFILE_LIST)) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-30s$(COFF) %s\n", $$1, $$2}'
 
 %: # stub so that chained targets won't fire. Allows to pass positional arguments to targets. Also has a stub for error if target not found
 	@:
