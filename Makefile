@@ -9,11 +9,15 @@ ifneq (,$(wildcard ./.env))
 endif
 
 CYAN ?= \033[0;36m
+CYAN_BOLD ?= \033[1;36m
 RED ?= \033[0;31m
 COFF ?= \033[0m
 
 COMPOSE = docker-compose
-USER = docker_user
+DOCKER_USER = docker_user
+REPO_DIR = $(shell pwd)
+DOCKER_USER_HOME = /home/${DOCKER_USER}/
+GET_PASSWORD_HASH = 'print crypt($$ARGV[0], "password")'
 
 ARGS = $(filter-out $@,$(MAKECMDGOALS))
 
@@ -64,22 +68,29 @@ install-docker-compose: install-docker ## Install docker-compose
 # Management #
 ##############
 
-check-dotenv:
+check-dotenv: ## check dotenvs
 	@$(eval DOTENVS := $(shell test -f ./.env && echo 'nonzero string'))
 	$(if $(DOTENVS),,$(error No .env files found, maybe run "make dotenv"?))
 
 dotenv: ## Copy all repo's dotenvs
 	cp -i .env.example .env
 
-dotenv-other:
+dotenv-other: ## Generate other service-specific dotenvs
 	cp -i ${BACKEND_PATH}/.envs.example/deployment.env.example backend.env
 
 create-user: check-dotenv ## Create user for docker and give him permissions
-	sudo useradd -s /bin/bash --create-home -p $(shell perl -e 'print crypt($$ARGV[0], "password")' ${DOCKER_USER_PASSWORD})  ${USER}
-	sudo usermod -aG docker ${USER}
-	@# TODO: test
-	sudo chgrp docker $(shell pwd)
-	sudo chmod g+x -R $(shell pwd)
+	# Setup group
+	sudo groupadd sora_deployment
+	sudo usermod -aG sora_deployment ${USER}
+	sudo chgrp sora_deployment ${REPO_DIR}
+	sudo chmod g+rwx -R ${REPO_DIR}
+	# create docker_user and add to groups
+	sudo useradd -s /bin/bash --create-home -p $(shell perl -e $(GET_PASSWORD_HASH) ${DOCKER_USER_PASSWORD}) ${DOCKER_USER}
+	sudo usermod -aG docker ${DOCKER_USER}
+	sudo usermod -aG sora_deployment ${DOCKER_USER}
+	sudo chgrp sora_deployment ${DOCKER_USER_HOME}
+	sudo chmod g+rwx -R ${DOCKER_USER_HOME}
+	@echo; echo "${CYAN}Please, reload shell with ${CYAN_BOLD}exec newgrp sora_deployment${COFF}"
 
 clone: ## Clone all repos
 	git -C $(shell realpath ${BACKEND_PATH} | xargs dirname) clone http://github.com/sora-reader/backend.git
