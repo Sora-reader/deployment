@@ -89,7 +89,7 @@ create-user: check-dotenv ## Create user for docker and give him permissions
 	sudo usermod -aG sora_deployment ${DOCKER_USER}
 	sudo chgrp sora_deployment ${DOCKER_USER_HOME}
 	sudo chmod g+rwx -R ${DOCKER_USER_HOME}
-	sudo echo "export DEPLOYMENT_DIR=${REPO_DIR}" >> /home/${DOCKER_USER}/.bashrc
+	sudo echo "export DEPLOYMENT_DIR=${REPO_DIR}" >> /home/${DOCKER_USER}/.profile
 	@echo; echo "${CYAN}Please, reload shell with ${CYAN_BOLD}exec newgrp sora_deployment${COFF}"
 
 clone: ## Clone all repos
