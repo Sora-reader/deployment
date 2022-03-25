@@ -8,25 +8,28 @@ ifneq (,$(wildcard ./.env))
     export
 endif
 
-CYAN ?= \033[0;36m
-CYAN_BOLD ?= \033[1;36m
-RED ?= \033[0;31m
-COFF ?= \033[0m
+_CYAN ?= \033[0;36m
+_CYAN_BOLD ?= \033[1;36m
+_RED ?= \033[0;31m
+_COFF ?= \033[0m
 
-COMPOSE = docker-compose
-DOCKER_USER = docker_user
-REPO_DIR = $(shell pwd)
-DOCKER_USER_HOME = /home/${DOCKER_USER}/
-GET_PASSWORD_HASH = 'print crypt($$ARGV[0], "password")'
+COMPOSE_COMMAND ?= docker-compose
+DOCKER_USER ?= docker_user
+REPO_DIR ?= $(shell pwd)
+DOCKER_USER_HOME ?= /home/${DOCKER_USER}/
+_GET_PASSWORD_HASH = 'print crypt($$ARGV[0], "password")'
 
-ARGS = $(filter-out $@,$(MAKECMDGOALS))
+ARGS := $(filter-out $@,$(MAKECMDGOALS))
 
-.PHONY: help # TODO
+.PHONY: install-prerequisites install-docker install-docker-compose \
+	check-dotenv dotenv dotenv-other \
+	create-user clone deploy
+
 .ONESHELL:
 .DEFAULT: help
 
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(word 1,$(MAKEFILE_LIST)) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-30s$(COFF) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(word 1,$(MAKEFILE_LIST)) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(_CYAN)%-30s$(_COFF) %s\n", $$1, $$2}'
 
 %: # stub so that chained targets won't fire. Allows to pass positional arguments to targets. Also has a stub for error if target not found
 	@:
@@ -84,18 +87,18 @@ create-user: check-dotenv ## Create user for docker and give him permissions
 	sudo chgrp sora_deployment ${REPO_DIR}
 	sudo chmod g+rwx -R ${REPO_DIR}
 	# create docker_user and add to groups
-	sudo useradd -s /bin/bash --create-home -p $(shell perl -e $(GET_PASSWORD_HASH) ${DOCKER_USER_PASSWORD}) ${DOCKER_USER}
+	sudo useradd -s /bin/bash --create-home -p $(shell perl -e $(_GET_PASSWORD_HASH) ${DOCKER_USER_PASSWORD}) ${DOCKER_USER}
 	sudo usermod -aG docker ${DOCKER_USER}
 	sudo usermod -aG sora_deployment ${DOCKER_USER}
 	sudo chgrp sora_deployment ${DOCKER_USER_HOME}
 	sudo chmod g+rwx -R ${DOCKER_USER_HOME}
 	sudo echo "export DEPLOYMENT_DIR=${REPO_DIR}" >> /home/${DOCKER_USER}/.profile
-	@echo; echo "${CYAN}Please, reload shell with ${CYAN_BOLD}exec newgrp sora_deployment${COFF}"
+	@echo; echo "${_CYAN}Please, reload shell with ${_CYAN_BOLD}exec newgrp sora_deployment${_COFF}"
 
 clone: ## Clone all repos
 	git -C $(shell realpath ${BACKEND_PATH} | xargs dirname) clone http://github.com/sora-reader/backend.git
 	git -C $(shell realpath ${FRONTEND_PATH} | xargs dirname) clone http://github.com/sora-reader/frontend.git
 
 deploy: check-dotenv ## Deploy specified service
-	$(COMPOSE) up --build -d ${ARGS}
+	$(COMPOSE_COMMAND) up --build -d ${ARGS}
 
