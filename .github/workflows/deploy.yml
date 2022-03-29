@@ -1,4 +1,4 @@
-name: Deploy
+name: Pull changes
 
 on:
   push:
@@ -16,5 +16,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script : |
+            . $HOME/.profile
+            cd "$DEPLOYMENT_DIR"
             CURRENT_BRANCH=$(git branch --show-current)
             [ ${{ github.ref }} = "$CURRENT_BRANCH" ] && git pull origin "$CURRENT_BRANCH"
