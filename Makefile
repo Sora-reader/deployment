@@ -92,12 +92,12 @@ create-user: check-dotenv ## Create user for docker and give him permissions
 	sudo usermod -aG sora_deployment ${DOCKER_USER}
 	sudo chgrp sora_deployment ${DOCKER_USER_HOME}
 	sudo chmod g+rwx -R ${DOCKER_USER_HOME}
-	sudo echo "export DEPLOYMENT_DIR=${REPO_DIR}" >> /home/${DOCKER_USER}/.profile
+	sudo echo "export DEPLOYMENT_DIR=${REPO_DIR}" >> ${DOCKER_USER_HOME}/.profile
 	@echo; echo "${_CYAN}Please, reload shell with ${_CYAN_BOLD}exec newgrp sora_deployment${_COFF}"
 
 clone: ## Clone all repos
-	git -C $(shell realpath ${BACKEND_PATH} | xargs dirname) clone http://github.com/sora-reader/backend.git
-	git -C $(shell realpath ${FRONTEND_PATH} | xargs dirname) clone http://github.com/sora-reader/frontend.git
+	git -C $(shell realpath ${BACKEND_PATH} | xargs dirname) clone https://github.com/sora-reader/backend.git
+	git -C $(shell realpath ${FRONTEND_PATH} | xargs dirname) clone https://github.com/sora-reader/frontend.git
 
 deploy: check-dotenv ## Deploy specified service
 	$(COMPOSE_COMMAND) up --build -d ${ARGS}
