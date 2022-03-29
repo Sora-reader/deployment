@@ -19,4 +19,4 @@ jobs:
             . $HOME/.profile
             cd "$DEPLOYMENT_DIR"
             CURRENT_BRANCH=$(git branch --show-current)
-            [ ${{ github.ref }} = "$CURRENT_BRANCH" ] && git pull origin "$CURRENT_BRANCH"
+            [ ${{ github.ref_name }} = "$CURRENT_BRANCH" ] && git pull origin "$CURRENT_BRANCH"
