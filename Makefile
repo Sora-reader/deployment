@@ -84,13 +84,13 @@ create-user: check-dotenv ## Create user for docker and give him permissions
 	# Setup group
 	sudo groupadd sora_deployment
 	sudo usermod -aG sora_deployment ${USER}
-	sudo chgrp -R sora_deployment ${REPO_DIR}
+	sudo chown -R :sora_deployment ${REPO_DIR}
 	sudo chmod g+rwx -R ${REPO_DIR}
 	# create docker_user and add to groups
 	sudo useradd -s /bin/bash --create-home -p $(shell perl -e $(_GET_PASSWORD_HASH) ${DOCKER_USER_PASSWORD}) ${DOCKER_USER}
 	sudo usermod -aG docker ${DOCKER_USER}
 	sudo usermod -aG sora_deployment ${DOCKER_USER}
-	sudo chgrp -R sora_deployment ${DOCKER_USER_HOME}
+	sudo chown -R :sora_deployment ${DOCKER_USER_HOME}
 	sudo chmod g+rwx -R ${DOCKER_USER_HOME}
 	sudo echo "export DEPLOYMENT_DIR=${REPO_DIR}" >> ${DOCKER_USER_HOME}/.profile
 	@echo; echo "${_CYAN}Please, reload shell with ${_CYAN_BOLD}exec newgrp sora_deployment${_COFF}"
