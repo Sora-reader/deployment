@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull
-        uses: sora-reader/vps-action@v1
+        uses: sora-reader/deployment-ssh-manager@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
