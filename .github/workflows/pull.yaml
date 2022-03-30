@@ -9,14 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull
-        uses: appleboy/ssh-action@v0.1.4
+        uses: sora-reader/vps-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          script : |
-            . $HOME/.profile
-            cd "$DEPLOYMENT_DIR"
-            CURRENT_BRANCH=$(git branch --show-current)
-            [ ${{ github.ref_name }} = "$CURRENT_BRANCH" ] && git pull origin "$CURRENT_BRANCH"
+
