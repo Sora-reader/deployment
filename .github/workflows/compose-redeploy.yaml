@@ -1,0 +1,21 @@
+name: Redeploy all services
+
+on:
+  push:
+    paths:
+      - docker-compose.yml
+      - docker-compose.yaml
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Redeploy
+        uses: sora-reader/deployment-ssh-manager@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: make force-redeploy
+

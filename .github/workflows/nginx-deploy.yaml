@@ -1,0 +1,21 @@
+name: Deploy nginx
+
+on:
+  push:
+    paths:
+      - nginx/**
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: sora-reader/deployment-ssh-manager@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          deploy: nginx
+
+

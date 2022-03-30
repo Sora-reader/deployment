@@ -23,7 +23,7 @@ ARGS := $(filter-out $@,$(MAKECMDGOALS))
 
 .PHONY: install-prerequisites install-docker install-docker-compose \
 	check-dotenv dotenv dotenv-other \
-	create-user clone deploy
+	create-user clone deploy force-redeploy
 
 .ONESHELL:
 .DEFAULT: help
@@ -101,4 +101,7 @@ clone: ## Clone all repos
 
 deploy: check-dotenv ## Deploy specified service
 	$(COMPOSE_COMMAND) up --build -d ${ARGS}
+
+force-redeploy: check-dotenv ## Force redeploy all services
+	$(COMPOSE_COMMAND) up -d --force-recreate ${ARGS}
 
