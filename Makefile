@@ -21,9 +21,16 @@ _GET_PASSWORD_HASH = 'print crypt($$ARGV[0], "password")'
 
 ARGS := $(filter-out $@,$(MAKECMDGOALS))
 
+# Repo dirs
+backend_dir = ${BACKEND_PATH}
+frontend_dir = ${FRONTEND_PATH}
+nginx_dir = ./
+deployment_dir = ./
+# ---------
+
 .PHONY: install-prerequisites install-docker install-docker-compose \
 	check-dotenv dotenv dotenv-other \
-	create-user clone deploy force-redeploy
+	create-user clone set-commit deploy force-redeploy
 
 .ONESHELL:
 .DEFAULT: help
@@ -70,7 +77,7 @@ install-docker-compose: install-docker ## Install docker-compose
 # Management #
 ##############
 
-check-dotenv: ## check dotenvs
+check-dotenv: # check dotenvs
 	@$(eval DOTENVS := $(shell test -f ./.env && echo 'nonzero string'))
 	$(if $(DOTENVS),,$(error No .env files found, maybe run "make dotenv"?))
 
@@ -98,6 +105,11 @@ create-user: check-dotenv ## Create user for docker and give him permissions
 clone: ## Clone all repos
 	git -C $(shell realpath ${BACKEND_PATH} | xargs dirname) clone https://oauth:${GITHUB_PAT}@github.com/sora-reader/backend.git
 	git -C $(shell realpath ${FRONTEND_PATH} | xargs dirname) clone https://oauth:${GITHUB_PAT}@github.com/sora-reader/frontend.git
+
+set-commit: check-dotenv ## Hard reset repo's dir given reference
+	cd ${${ARGS}_dir}
+	git fetch origin "${CURRENT_BRANCH}"
+	git reset --hard "origin/${CURRENT_BRANCH}"
 
 deploy: check-dotenv ## Deploy specified service
 	$(COMPOSE_COMMAND) up --build -d ${ARGS}
