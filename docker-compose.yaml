@@ -14,6 +14,7 @@ services:
       - 80:80
       - 443:443
     environment:
+      - CERTBOT_EMAIL
       - BACKEND_DOMAIN
       - FRONTEND_DOMAIN
   

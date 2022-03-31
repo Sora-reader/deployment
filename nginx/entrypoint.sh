@@ -5,7 +5,7 @@ generate_certificate () {
 }
 
 # Generate certificates if they don't exist
-[ -d '/etc/letsencrypt/live/backend.sora-reader.app' ] || generate_certificate backend.sora-reader.app 1337kwiz@gmail.com
-[ -d '/etc/letsencrypt/live/sora-reader.app' ] || generate_certificate sora-reader.app 1337kwiz@gmail.com
+[ -d "/etc/letsencrypt/live/$BACKEND_DOMAIN" ] || generate_certificate "$BACKEND_DOMAIN" "$CERTBOT_EMAIL"
+[ -d "/etc/letsencrypt/live/$FRONTEND_DOMAIN" ] || generate_certificate "$FRONTEND_DOMAIN" "$CERTBOT_EMAIL"
 
 ./docker-entrypoint.sh nginx -g 'daemon off;'
