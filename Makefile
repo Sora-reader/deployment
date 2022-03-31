@@ -115,5 +115,5 @@ deploy: check-dotenv ## Deploy specified service
 	$(COMPOSE_COMMAND) up --build -d ${ARGS}
 
 force-redeploy: check-dotenv ## Force redeploy all services
-	$(COMPOSE_COMMAND) up -d --force-recreate ${ARGS}
+	$(COMPOSE_COMMAND) up -d --force-recreate
 
