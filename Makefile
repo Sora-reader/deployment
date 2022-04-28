@@ -19,7 +19,7 @@ REPO_DIR ?= $(shell pwd)
 DOCKER_USER_HOME ?= /home/${DOCKER_USER}/
 _GET_PASSWORD_HASH = 'print crypt($$ARGV[0], "password")'
 
-ARGS := $(filter-out $@,$(MAKECMDGOALS))
+ARGS = $(filter-out $@,$(MAKECMDGOALS))
 
 # Repo dirs
 backend_dir = ${BACKEND_PATH}
