@@ -1,2 +1,2 @@
-0 12 * * * /usr/bin/certbot renew --quiet
+0 12 * * * (date && echo /usr/bin/certbot renew --quiet) >> /home/log/autorenew.log 2>&1
 

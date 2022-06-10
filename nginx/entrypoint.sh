@@ -8,4 +8,6 @@ generate_certificate () {
 [ -d "/etc/letsencrypt/live/$BACKEND_DOMAIN" ] || generate_certificate "$BACKEND_DOMAIN" "$CERTBOT_EMAIL"
 [ -d "/etc/letsencrypt/live/$FRONTEND_DOMAIN" ] || generate_certificate "$FRONTEND_DOMAIN" "$CERTBOT_EMAIL"
 
+crond
+
 ./docker-entrypoint.sh nginx -g 'daemon off;'
